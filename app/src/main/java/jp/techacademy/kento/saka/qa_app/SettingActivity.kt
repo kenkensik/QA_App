@@ -9,6 +9,7 @@ import android.preference.PreferenceManager
 import android.view.inputmethod.InputMethodManager
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_setting.*
+import android.widget.EditText
 
 class SettingActivity : AppCompatActivity() {
 
@@ -21,7 +22,7 @@ class SettingActivity : AppCompatActivity() {
         // Preferenceから表示名を取得してEditTextに反映させる
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         val name = sp.getString(NameKEY, "")
-        val nameText= findViewById(R.id.nameText)
+        val nameText= findViewById<EditText>(R.id.nameText)
         nameText.setText(name)
 
         mDataBaseReference = FirebaseDatabase.getInstance().reference
