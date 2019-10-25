@@ -147,7 +147,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
-        // --- ここから ---
         // Firebase
         mDatabaseReference = FirebaseDatabase.getInstance().reference
 
@@ -156,6 +155,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mAdapter = QuestionsListAdapter(this)
         mQuestionArrayList = ArrayList<Question>()
         mAdapter.notifyDataSetChanged()
+
+        mListView.setOnItemClickListener { parent, view, position, id ->
+            // Questionのインスタンスを渡して質問詳細画面を起動する
+            val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
+            intent.putExtra("question", mQuestionArrayList[position])
+            startActivity(intent)
+        }
         // --- ここまで追加する ---
     }
 
