@@ -8,7 +8,7 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ListView
-
+import android.support.design.widget.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.ChildEventListener
@@ -25,6 +25,7 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
+
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -68,6 +69,31 @@ class QuestionDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_question_detail)
+
+        val user = FirebaseAuth.getInstance().currentUser
+        var count=0
+
+        if (user == null) {
+            // ログインしていなければお気に入りボタンを非表示
+            favorite.setVisibility(View.INVISIBLE)
+        } else {
+            // お気に入りボタンを表示
+            favorite.setVisibility(View.VISIBLE)
+        }
+
+        favorite.setOnClickListener {
+            if(count==0){
+                favorite.text="解除"
+                count=1
+                Snackbar.make(it,"お気に入りに登録されました", Snackbar.LENGTH_LONG).show()
+            }else{
+                favorite.text="登録"
+                count=0
+                Snackbar.make(it,"お気に入りから削除されました", Snackbar.LENGTH_LONG).show()
+            }
+
+        }
+
 
         // 渡ってきたQuestionのオブジェクトを保持する
         val extras = intent.extras
