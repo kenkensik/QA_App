@@ -20,6 +20,9 @@ import kotlinx.android.synthetic.main.activity_question_detail.*
 import kotlinx.android.synthetic.main.activity_question_send.*
 
 
+
+
+
 import java.util.HashMap
 
 class QuestionDetailActivity : AppCompatActivity() {
@@ -75,16 +78,11 @@ class QuestionDetailActivity : AppCompatActivity() {
         val user = FirebaseAuth.getInstance().currentUser
         var count=0
 
-        if (user == null) {
-            // ログインしていなければお気に入りボタンを非表示
-            favorite.setVisibility(View.INVISIBLE)
-        } else {
-            // お気に入りボタンを表示
-            favorite.setVisibility(View.VISIBLE)
-        }
 
         val extras = intent.extras
         mQuestion = extras.get("question") as Question
+        var mGenre = extras.getInt("genre")
+
 
         favorite.setOnClickListener{
 
@@ -92,15 +90,18 @@ class QuestionDetailActivity : AppCompatActivity() {
             val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
 
             val data = HashMap<String, String>()
-            val title = titleText.text.toString()
-            val body = bodyText.text.toString()
+            //val title = titleText.text.toString()
+            //val body = bodyText.text.toString()
+
 
             if(count==0){
                 favorite.text="解除"
                 count=1
                 Snackbar.make(it,"お気に入りに登録されました", Snackbar.LENGTH_LONG).show()
 
-                data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
+                //data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
+
+                data["category"]=mGenre.toString()
 
 
                 favoriteRef.setValue(data)
@@ -145,4 +146,19 @@ class QuestionDetailActivity : AppCompatActivity() {
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
     }
+    override fun onResume() {
+
+        super.onResume()
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            // ログインしていなければお気に入りボタンを非表示
+            favorite.setVisibility(View.INVISIBLE)
+        } else {
+            // お気に入りボタンを表示
+            favorite.setVisibility(View.VISIBLE)
+        }
+
+    }
+
 }

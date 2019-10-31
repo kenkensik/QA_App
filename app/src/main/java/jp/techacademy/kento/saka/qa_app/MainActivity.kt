@@ -41,6 +41,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var mGenreRef: DatabaseReference? = null
 
+
+
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
@@ -121,16 +123,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mToolbar = findViewById(R.id.toolbar)
         setSupportActionBar(mToolbar)
 
-        val user = FirebaseAuth.getInstance().currentUser
+        //val user = FirebaseAuth.getInstance().currentUser
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
-        if (user == null) {
-            // ログインしていなければログイン画面に遷移させる
-            //R.id.nav_favorite.setVisibility(View.INVISIBLE)
 
-        } else {
-            // ジャンルを渡して質問作成画面を起動する
 
-        }
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { view ->
@@ -161,7 +158,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer.addDrawerListener(toggle)
         toggle.syncState()
 
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        //val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
         // Firebase
@@ -176,15 +173,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mListView.setOnItemClickListener { parent, view, position, id ->
             // Questionのインスタンスを渡して質問詳細画面を起動する
             val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
+            intent.putExtra("genre", mGenre)
             intent.putExtra("question", mQuestionArrayList[position])
             startActivity(intent)
         }
         // --- ここまで追加する ---
     }
 
+
     override fun onResume() {
+
         super.onResume()
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            // ログインしていなければお気に入りを非表示にする
+            navigationView.menu.getItem(4).setVisible(false)
+
+        } else {
+
+            // ログインしていればお気に入りを表示する
+            navigationView.menu.getItem(4).setVisible(true)
+        }
+
 
         // 1:趣味を既定の選択とする
         if(mGenre == 0) {
@@ -230,6 +242,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mGenre = 5
         }
 
+
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
 
@@ -242,6 +255,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 選択したジャンルにリスナーを登録する
         if (mGenreRef != null) {
             mGenreRef!!.removeEventListener(mEventListener)
+        }
+
+        if(mGenre ==5){
+
         }
         mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
         mGenreRef!!.addChildEventListener(mEventListener)
