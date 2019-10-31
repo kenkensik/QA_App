@@ -23,6 +23,8 @@ import android.util.Base64  //追加する
 import android.view.View
 import android.widget.ListView
 import jp.techacademy.kento.saka.qa_app.R.id.nav_favorite
+import kotlinx.android.synthetic.main.activity_question_detail.*
+
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mListView: ListView
     private lateinit var mQuestionArrayList: ArrayList<Question>
     private lateinit var mAdapter: QuestionsListAdapter
+    private lateinit var mFavoriteArrayList: ArrayList<Question>
 
     private var mGenreRef: DatabaseReference? = null
 
@@ -85,6 +88,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         for (key in answerMap.keys) {
                             val temp = answerMap[key] as Map<String, String>
                             val answerBody = temp["body"] ?: ""
+                            val answerNewBody=temp["newbody"]?:""
                             val answerName = temp["name"] ?: ""
                             val answerUid = temp["uid"] ?: ""
                             val answer = Answer(answerBody, answerName, answerUid, key)
@@ -121,6 +125,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (user == null) {
             // ログインしていなければログイン画面に遷移させる
+            //R.id.nav_favorite.setVisibility(View.INVISIBLE)
 
         } else {
             // ジャンルを渡して質問作成画面を起動する

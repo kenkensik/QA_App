@@ -47,6 +47,7 @@ class SettingActivity : AppCompatActivity() {
                 val userRef = mDataBaseReference.child(UsersPATH).child(user.uid)
                 val data = HashMap<String, String>()
                 data["name"] = name
+                //data["age"]=21.toString()
                 userRef.setValue(data)
 
                 // 変更した表示名をPreferenceに保存する

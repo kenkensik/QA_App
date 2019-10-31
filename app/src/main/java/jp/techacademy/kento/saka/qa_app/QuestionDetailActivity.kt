@@ -17,6 +17,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_question_detail.*
+import kotlinx.android.synthetic.main.activity_question_send.*
+
 
 import java.util.HashMap
 
@@ -81,11 +83,28 @@ class QuestionDetailActivity : AppCompatActivity() {
             favorite.setVisibility(View.VISIBLE)
         }
 
-        favorite.setOnClickListener {
+        val extras = intent.extras
+        mQuestion = extras.get("question") as Question
+
+        favorite.setOnClickListener{
+
+            val dataBaseReference = FirebaseDatabase.getInstance().reference
+            val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
+
+            val data = HashMap<String, String>()
+            val title = titleText.text.toString()
+            val body = bodyText.text.toString()
+
             if(count==0){
                 favorite.text="解除"
                 count=1
                 Snackbar.make(it,"お気に入りに登録されました", Snackbar.LENGTH_LONG).show()
+
+                data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
+
+
+                favoriteRef.setValue(data)
+
             }else{
                 favorite.text="登録"
                 count=0
@@ -96,8 +115,8 @@ class QuestionDetailActivity : AppCompatActivity() {
 
 
         // 渡ってきたQuestionのオブジェクトを保持する
-        val extras = intent.extras
-        mQuestion = extras.get("question") as Question
+        //val extras = intent.extras
+        //mQuestion = extras.get("question") as Question
 
         title = mQuestion.title
 
@@ -108,7 +127,6 @@ class QuestionDetailActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             // ログイン済みのユーザーを取得する
-            val user = FirebaseAuth.getInstance().currentUser
 
             if (user == null) {
                 // ログインしていなければログイン画面に遷移させる

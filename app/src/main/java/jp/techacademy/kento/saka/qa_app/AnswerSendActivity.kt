@@ -71,6 +71,7 @@ class AnswerSendActivity : AppCompatActivity(), View.OnClickListener, DatabaseRe
             return
         }
         data["body"] = answer
+        data["newbody"]=answer
 
         progressBar.visibility = View.VISIBLE
         answerRef.push().setValue(data, this)
