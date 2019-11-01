@@ -14,14 +14,11 @@ import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import android.support.design.widget.Snackbar
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64  //追加する
+import android.util.Log
 import android.view.View
 import android.widget.ListView
+import com.google.firebase.database.*
 import jp.techacademy.kento.saka.qa_app.R.id.nav_favorite
 import kotlinx.android.synthetic.main.activity_question_detail.*
 
@@ -31,16 +28,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var mToolbar: Toolbar
     private var mGenre = 0
+    var category:String?=""
+    var qid:String?=""
 
     // --- ここから ---
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mListView: ListView
     private lateinit var mQuestionArrayList: ArrayList<Question>
+    private lateinit var pQuestionArrayList: ArrayList<Question>
     private lateinit var mAdapter: QuestionsListAdapter
     private lateinit var mFavoriteArrayList: ArrayList<Question>
 
     private var mGenreRef: DatabaseReference? = null
     private var favoriteRef: DatabaseReference? = null
+    //private var contentsRef: DatabaseReference? = null
 
 
 
@@ -121,26 +122,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
 
-            val map = dataSnapshot.value as Map<String, String>
-            val title =  ""
-            val body =  ""
-            val name =  ""
-            val uid =  ""
-            val imageString=""
 
-            val bytes =
-                    if (imageString.isNotEmpty()) {
-                        Base64.decode(imageString, Base64.DEFAULT)
-                    } else {
-                        byteArrayOf()
-                    }
+            val map = dataSnapshot.value as Map<String,String>
 
-            val answerArrayList = ArrayList<Answer>()
-            //val map = dataSnapshot.value as Map<String, String>
-            val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
-                    mGenre, bytes, answerArrayList)
-            mQuestionArrayList.add(question)
-            mAdapter.notifyDataSetChanged()
+            category =map["category"]
+            qid=dataSnapshot.key
+
+            var contentsRef= mDatabaseReference.child(ContentsPATH).child(category.toString()).child(qid.toString())
+
+            contentsRef.addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val data = snapshot.value as Question
+
+                    pQuestionArrayList.add(data)
+                    mAdapter.notifyDataSetChanged()
+                    //saveName(data!!["name"] as String)
+                }
+
+                override fun onCancelled(firebaseError: DatabaseError) {}
+
+            })
+
+
+
 
 
         }
