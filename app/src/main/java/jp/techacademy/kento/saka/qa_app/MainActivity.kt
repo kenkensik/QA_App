@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mFavoriteArrayList: ArrayList<Question>
 
     private var mGenreRef: DatabaseReference? = null
+    private var favoriteRef: DatabaseReference? = null
 
 
 
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         for (key in answerMap.keys) {
                             val temp = answerMap[key] as Map<String, String>
                             val answerBody = temp["body"] ?: ""
-                            val answerNewBody=temp["newbody"]?:""
+                            //val answerNewBody=temp["newbody"]?:""
                             val answerName = temp["name"] ?: ""
                             val answerUid = temp["uid"] ?: ""
                             val answer = Answer(answerBody, answerName, answerUid, key)
@@ -112,6 +113,51 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         override fun onCancelled(p0: DatabaseError) {
+
+        }
+    }
+
+    private val pEventListener = object : ChildEventListener {
+
+        override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+
+            val map = dataSnapshot.value as Map<String, String>
+            val title =  ""
+            val body =  ""
+            val name =  ""
+            val uid =  ""
+            val imageString=""
+
+            val bytes =
+                    if (imageString.isNotEmpty()) {
+                        Base64.decode(imageString, Base64.DEFAULT)
+                    } else {
+                        byteArrayOf()
+                    }
+
+            val answerArrayList = ArrayList<Answer>()
+            //val map = dataSnapshot.value as Map<String, String>
+            val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
+                    mGenre, bytes, answerArrayList)
+            mQuestionArrayList.add(question)
+            mAdapter.notifyDataSetChanged()
+
+
+        }
+
+        override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
+
+        }
+
+        override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+
+        }
+
+        override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) {
+
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
 
         }
     }
@@ -240,6 +286,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }else if(id == R.id.nav_favorite){
             mToolbar.title = "お気に入り"
             mGenre = 5
+
         }
 
 
@@ -259,11 +306,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if(mGenre ==5){
 
-        }
-        mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
-        mGenreRef!!.addChildEventListener(mEventListener)
-        // --- ここまで追加する ---
+            if (favoriteRef != null) {
+                favoriteRef!!.removeEventListener(mEventListener)
+            }
 
+            val user = FirebaseAuth.getInstance().currentUser
+            favoriteRef = mDatabaseReference.child(FavoritePATH).child(user!!.uid)
+            favoriteRef!!.addChildEventListener(pEventListener)
+
+        }else {
+            mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
+            mGenreRef!!.addChildEventListener(mEventListener)
+            // --- ここまで追加する ---
+        }
         return true
     }
 }
