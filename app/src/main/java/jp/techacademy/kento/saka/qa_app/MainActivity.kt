@@ -132,13 +132,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             contentsRef.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.value as Map<*, *>
+                    val data = snapshot.value as Map<String, String>
 
                     val title = data["title"]?: ""
                     val body = data["body"] ?: ""
                     val name = data["name"] ?: ""
                     val uid = data["uid"] ?: ""
-                    val imageString = ""
+                    val imageString = data["image"] ?: ""
                     val bytes =
                             if (imageString.isNotEmpty()) {
                                 Base64.decode(imageString, Base64.DEFAULT)
@@ -246,14 +246,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mListView = findViewById(R.id.listView)
         mAdapter = QuestionsListAdapter(this)
         mQuestionArrayList = ArrayList<Question>()
+        pQuestionArrayList = ArrayList<Question>()
         mAdapter.notifyDataSetChanged()
 
         mListView.setOnItemClickListener { parent, view, position, id ->
             // Questionのインスタンスを渡して質問詳細画面を起動する
             val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
             intent.putExtra("genre", mGenre)
+            if(mGenre==5){
+                intent.putExtra("question", pQuestionArrayList[position])
+                startActivity(intent)
+            }else{
             intent.putExtra("question", mQuestionArrayList[position])
             startActivity(intent)
+            }
         }
         // --- ここまで追加する ---
     }
@@ -328,6 +334,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // --- ここから ---
         // 質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
         mQuestionArrayList.clear()
+        pQuestionArrayList.clear()
         mAdapter.setQuestionArrayList(mQuestionArrayList)
         mListView.adapter = mAdapter
 
@@ -337,6 +344,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         if(mGenre ==5){
+
+            mAdapter.setQuestionArrayList(pQuestionArrayList)
+            mListView.adapter = mAdapter
 
             if (favoriteRef != null) {
                 favoriteRef!!.removeEventListener(mEventListener)
