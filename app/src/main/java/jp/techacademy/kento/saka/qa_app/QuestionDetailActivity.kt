@@ -18,7 +18,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_question_detail.*
 import kotlinx.android.synthetic.main.activity_question_send.*
-
+import android.util.Log
 
 
 
@@ -30,11 +30,14 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
+    var count=0
+
+
 
 
     private val mEventListener = object : ChildEventListener {
-        override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
-            val map = dataSnapshot.value as Map<String, String>
+                override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+                    val map = dataSnapshot.value as Map<String, String>
 
             val answerUid = dataSnapshot.key ?: ""
 
@@ -71,6 +74,36 @@ class QuestionDetailActivity : AppCompatActivity() {
         }
     }
 
+
+    private val EventListener = object : ChildEventListener {
+        override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+            //val map = dataSnapshot.value as Map<String, String>
+
+            Log.d("test",dataSnapshot.key)
+            if(count==0){count=1}
+            else{count=0}
+
+        }
+
+        override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
+
+        }
+
+        override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+
+        }
+
+        override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) {
+
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+
+        }
+    }
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_question_detail)
@@ -84,15 +117,23 @@ class QuestionDetailActivity : AppCompatActivity() {
         var mGenre = extras.getInt("genre")
 
 
+
         favorite.setOnClickListener{
 
             val dataBaseReference = FirebaseDatabase.getInstance().reference
-            val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
+            //val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
+            val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid)
 
             val data = HashMap<String, String>()
             //val title = titleText.text.toString()
             //val body = bodyText.text.toString()
+            //Log.d("test",favoriteRef.key)
 
+            if (favoriteRef != null) {
+                favoriteRef!!.removeEventListener(EventListener)
+            }
+
+            favoriteRef!!.addChildEventListener(EventListener)
 
             if(favorite.text=="登録"){
                 favorite.text="解除"
@@ -105,7 +146,7 @@ class QuestionDetailActivity : AppCompatActivity() {
 
 
 
-                favoriteRef.setValue(data)
+                favoriteRef.child(mQuestion.questionUid).setValue(data)
 
 
                 //fab.hide()
@@ -113,7 +154,7 @@ class QuestionDetailActivity : AppCompatActivity() {
 
 
             }else{
-                favoriteRef.removeValue()
+                favoriteRef.child(mQuestion.questionUid).removeValue()
                 dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
                 favorite.text="登録"
 
