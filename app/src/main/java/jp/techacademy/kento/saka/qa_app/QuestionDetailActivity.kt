@@ -104,6 +104,7 @@ class QuestionDetailActivity : AppCompatActivity() {
                 data["category"]=mGenre.toString()
 
 
+
                 favoriteRef.setValue(data)
 
             }else{

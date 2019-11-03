@@ -132,9 +132,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             contentsRef.addListenerForSingleValueEvent(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.value as Question
+                    val data = snapshot.value as Map<*, *>
 
-                    pQuestionArrayList.add(data)
+                    val title = data["title"]?: ""
+                    val body = data["body"] ?: ""
+                    val name = data["name"] ?: ""
+                    val uid = data["uid"] ?: ""
+                    val imageString = ""
+                    val bytes =
+                            if (imageString.isNotEmpty()) {
+                                Base64.decode(imageString, Base64.DEFAULT)
+                            } else {
+                                byteArrayOf()
+                            }
+
+                    val answerArrayList = ArrayList<Answer>()
+                    val answerMap = data["answers"] as Map<String, String>?
+                    if (answerMap != null) {
+                        for (key in answerMap.keys) {
+                            val temp = answerMap[key] as Map<String, String>
+                            val answerBody = temp["body"] ?: ""
+                            val answerName = temp["name"] ?: ""
+                            val answerUid = temp["uid"] ?: ""
+                            val answer = Answer(answerBody, answerName, answerUid, key)
+                            answerArrayList.add(answer)
+                        }
+                    }
+
+                    val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
+                            mGenre, bytes, answerArrayList)
+                    pQuestionArrayList.add(question)
+
                     mAdapter.notifyDataSetChanged()
                     //saveName(data!!["name"] as String)
                 }
