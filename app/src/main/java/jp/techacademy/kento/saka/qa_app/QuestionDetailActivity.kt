@@ -76,7 +76,7 @@ class QuestionDetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_question_detail)
 
         val user = FirebaseAuth.getInstance().currentUser
-        var count=0
+
 
 
         val extras = intent.extras
@@ -94,9 +94,9 @@ class QuestionDetailActivity : AppCompatActivity() {
             //val body = bodyText.text.toString()
 
 
-            if(count==0){
+            if(favorite.text=="登録"){
                 favorite.text="解除"
-                count=1
+
                 Snackbar.make(it,"お気に入りに登録されました", Snackbar.LENGTH_LONG).show()
 
                 //data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
@@ -107,10 +107,20 @@ class QuestionDetailActivity : AppCompatActivity() {
 
                 favoriteRef.setValue(data)
 
+
+                //fab.hide()
+
+
+
             }else{
+                favoriteRef.removeValue()
+                dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
                 favorite.text="登録"
-                count=0
+
                 Snackbar.make(it,"お気に入りから削除されました", Snackbar.LENGTH_LONG).show()
+
+                
+                //fab.show()
             }
 
         }
@@ -149,8 +159,23 @@ class QuestionDetailActivity : AppCompatActivity() {
     }
     override fun onResume() {
 
+
         super.onResume()
+
+        val extras = intent.extras
+        var mGenre = extras.getInt("genre")
+
+
+        if(mGenre ==5){
+            fab.hide()
+        }
+
         val user = FirebaseAuth.getInstance().currentUser
+
+
+
+
+        //val user = FirebaseAuth.getInstance().currentUser
 
         if (user == null) {
             // ログインしていなければお気に入りボタンを非表示

@@ -197,6 +197,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+
         setContentView(R.layout.activity_main)
         mToolbar = findViewById(R.id.toolbar)
         setSupportActionBar(mToolbar)
@@ -267,7 +270,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
 
+
         super.onResume()
+
+        fab.show()
+
+        if(mGenre ==5) {
+            fab.hide()
+        }
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         val user = FirebaseAuth.getInstance().currentUser
 
