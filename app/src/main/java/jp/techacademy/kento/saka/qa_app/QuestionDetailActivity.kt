@@ -30,6 +30,7 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
+    private lateinit var mDatabase:DatabaseReference
     var count=0
 
 
@@ -79,9 +80,18 @@ class QuestionDetailActivity : AppCompatActivity() {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             //val map = dataSnapshot.value as Map<String, String>
 
-            Log.d("test",dataSnapshot.key)
-            if(count==0){count=1}
-            else{count=0}
+           /* val extras = intent.extras
+            mQuestion = extras.get("question") as Question
+            var mGenre = extras.getInt("genre")
+
+            val user = FirebaseAuth.getInstance().currentUser
+            val dataBaseReference = FirebaseDatabase.getInstance().reference
+            val genreRef = dataBaseReference.child(ContentsPATH).child(mGenre.toString())
+
+            val key=dataSnapshot.key
+            Log.d("test",dataSnapshot.key)*/
+
+
 
         }
 
@@ -123,17 +133,18 @@ class QuestionDetailActivity : AppCompatActivity() {
             val dataBaseReference = FirebaseDatabase.getInstance().reference
             //val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid).child(mQuestion.questionUid)
             val favoriteRef =dataBaseReference.child(FavoritePATH).child(user!!.uid)
+            val genreRef = dataBaseReference.child(ContentsPATH).child(mGenre.toString())
 
             val data = HashMap<String, String>()
             //val title = titleText.text.toString()
             //val body = bodyText.text.toString()
             //Log.d("test",favoriteRef.key)
 
-            if (favoriteRef != null) {
-                favoriteRef!!.removeEventListener(EventListener)
+            if ( genreRef!= null) {
+                genreRef!!.removeEventListener(EventListener)
             }
 
-            favoriteRef!!.addChildEventListener(EventListener)
+            genreRef!!.addChildEventListener(EventListener)
 
             if(favorite.text=="登録"){
                 favorite.text="解除"
@@ -198,6 +209,8 @@ class QuestionDetailActivity : AppCompatActivity() {
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
     }
+
+
     override fun onResume() {
 
 
